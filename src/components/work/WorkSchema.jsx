@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 // The site's public address, matching index.html.
-const ORIGIN = 'https://vimet.com'
+const ORIGIN = 'https://vimet01.github.io'
 const ID = 'vimet-work-schema'
 
 function isoDuration(seconds) {

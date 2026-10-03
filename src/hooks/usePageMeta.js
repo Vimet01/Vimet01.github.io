@@ -6,7 +6,7 @@ const DEFAULT_TITLE = 'Vimet | Creative Director and Video Content Creator in An
 
 // The site's public address, used for canonical and social preview URLs.
 // Keep in step with index.html.
-const ORIGIN = 'https://vimet.com'
+const ORIGIN = 'https://vimet01.github.io'
 
 function setMeta(selector, attr, name, content) {
   let tag = document.head.querySelector(selector)
