@@ -1,0 +1,34 @@
+.notfound {
+  min-height: 80dvh;
+  display: flex;
+  align-items: center;
+  /* matches .page-hero: without --sat the heading slides under the fixed
+     header on a notched phone */
+  padding-top: calc(var(--header-h) + var(--sat) + clamp(40px, 9vw, 120px));
+  padding-bottom: clamp(56px, 9vw, 80px);
+}
+
+.notfound__inner {
+  max-width: 760px;
+}
+
+.notfound__title {
+  font-size: var(--fs-h1);
+  line-height: 0.95;
+}
+
+.notfound__title em {
+  color: var(--gold-ink);
+}
+
+.notfound__lead {
+  margin-top: 24px;
+  max-width: 520px;
+}
+
+.notfound__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 36px;
+}

@@ -1,0 +1,221 @@
+/**
+ * Design tokens.
+ *
+ * :root carries the dark palette, which is the brand default. The light
+ * palette redefines only what has to change, under [data-theme='light'].
+ * public/theme.js stamps that attribute before the first paint, so there is
+ * never a flash of the wrong theme.
+ *
+ * Three rules keep the two themes honest:
+ *   1. --gold, --gold-2, --gold-3 and --text-on-gold never change. Four
+ *      surfaces are gold in both themes (the CTA band, .btn--primary, the
+ *      active chip, the work card play button) and they depend on that pairing.
+ *      Gold used as TEXT reads through --gold-ink instead, which does change.
+ *   2. The surface ramp is not a naive inversion. In dark, --bg is the darkest
+ *      and recessed bands step lighter; in light, --bg is the lightest and
+ *      recessed bands step darker.
+ *   3. Anything that sits on top of a photograph or a video keeps a fixed dark
+ *      treatment in both themes: --on-media, --media-scrim, --card-shade-*.
+ */
+
+:root {
+  /* Tells the browser how to paint scrollbars, form controls and the date
+     picker. Read by html in base.css so the manual toggle always wins. */
+  --scheme: dark;
+
+  /* Surfaces */
+  --bg: #0a0a0a;
+  --bg-2: #0e0e0f;
+  --surface: #141414;
+  --surface-2: #1a1a1b;
+  --surface-3: #202021;
+  --line: #232323;
+  --line-2: #2f2f30;
+  --line-3: #3a3a3b;
+
+  /* Text */
+  --text: #f5f3ee;
+  --text-2: #b8b4a9;
+  --text-3: #8a8578;
+  --text-on-gold: #120e05;
+  /* Alpha variants of the on-gold ink. The gold band never flips, so neither do these. */
+  --text-on-gold-2: rgba(18, 14, 5, 0.7);
+  --text-on-gold-3: rgba(18, 14, 5, 0.85);
+  --text-on-gold-line: rgba(18, 14, 5, 0.4);
+  /* Fixed light ink for labels that always sit on a photo or a video frame */
+  --on-media: #f5f3ee;
+
+  /* Accent. These four are deliberately identical in both themes. */
+  --gold: #c9a768;
+  --gold-2: #e0c07f;
+  --gold-3: #a8874c;
+  /* Gold as text. Light mode needs a deeper tone to clear 4.5:1 on the page. */
+  --gold-ink: #c9a768;
+  --gold-soft: rgba(201, 167, 104, 0.14);
+  --gold-glow: rgba(201, 167, 104, 0.32);
+  --gold-line: rgba(201, 167, 104, 0.45);
+
+  /* Atmospheric gold radials behind the heroes */
+  --glow-strong: rgba(201, 167, 104, 0.16);
+  --glow: rgba(201, 167, 104, 0.1);
+  --glow-soft: rgba(201, 167, 104, 0.06);
+
+  /* Status */
+  --danger: #e06c5c;
+  --danger-soft: rgba(224, 108, 92, 0.1);
+  --danger-line: rgba(224, 108, 92, 0.35);
+  --success: #6fbf8a;
+  --success-soft: rgba(111, 191, 138, 0.1);
+  --success-line: rgba(111, 191, 138, 0.3);
+
+  /* Chrome and overlays */
+  --header-scrim: rgba(10, 10, 10, 0.72);
+  --modal-scrim: rgba(6, 6, 6, 0.94);
+  --glass: rgba(14, 14, 15, 0.92);
+  --wash: rgba(255, 255, 255, 0.08);
+  --hairline-overlay: rgba(255, 255, 255, 0.035);
+  --focus-ring: #c9a768;
+  --scrollbar-thumb: #3a3a3b;
+  --cursor-ring: rgba(201, 167, 104, 0.7);
+  --cursor-ring-strong: rgba(201, 167, 104, 0.9);
+  --btn-light-hover: #ffffff;
+  --btn-dark-hover: #000000;
+
+  /* Scrims over media. Dark in both themes, only the strength moves. */
+  --media-scrim: rgba(10, 10, 10, 0.55);
+  --card-shade-top: rgba(10, 10, 10, 0.35);
+  --card-shade-foot: rgba(10, 10, 10, 0.75);
+
+  /* Shadows */
+  --shadow-xl: 0 60px 120px -50px rgba(0, 0, 0, 0.9);
+  --shadow-sm: 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+
+  /* The wordmark PNG is white on transparent, so the light theme inverts it */
+  --logo-invert: 0;
+  /* The grain sprite is white noise, so the light theme inverts it to black noise */
+  --grain-invert: 0;
+  --grain-opacity: 0.055;
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+
+  --fs-hero: clamp(2.9rem, 8.4vw, 7.4rem);
+  --fs-h1: clamp(2.6rem, 6.4vw, 5.6rem);
+  --fs-h2: clamp(2.1rem, 4.6vw, 4rem);
+  --fs-h3: clamp(1.35rem, 2.2vw, 1.75rem);
+  --fs-lead: clamp(1.05rem, 1.4vw, 1.25rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-tiny: 0.75rem;
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 0.6s;
+  /* Cross fade when the palette swaps. Mirrored by SWAP_MS in src/lib/theme.js. */
+  --theme-swap: 0.26s;
+
+  /* Layout */
+  --container: 1400px;
+  --gutter: clamp(20px, 5vw, 72px);
+  --section: clamp(72px, 10vw, 140px);
+  --header-h: 76px;
+  --radius: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+
+  /* Layers */
+  --z-header: 100;
+  --z-progress: 150;
+  --z-menu: 200;
+  --z-grain: 900;
+  --z-modal: 1000;
+  --z-cursor: 1100;
+  --z-preloader: 2000;
+
+  /* Safe areas (iOS) */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+}
+
+:root[data-theme='light'] {
+  --scheme: light;
+
+  /* Warm off white rather than pure white: less glare, and it keeps the
+     editorial feel of the dark theme. The ramp steps DOWN into recessed
+     bands, the mirror of how the dark ramp steps up. */
+  --bg: #fbf9f5;
+  --bg-2: #f4f1ea;
+  --surface: #ece8df;
+  --surface-2: #e4dfd4;
+  --surface-3: #dbd5c8;
+  --line: #e4dfd3;
+  --line-2: #d4cdbd;
+  --line-3: #b7b0a0;
+
+  --text: #16140f;
+  --text-2: #4d4940;
+  --text-3: #6f6a5e;
+
+  /* 4.8:1 on --bg, so gold headings, eyebrows and links stay readable */
+  --gold-ink: #8a6a2f;
+  --gold-soft: rgba(168, 131, 58, 0.22);
+  --gold-glow: rgba(168, 131, 58, 0.34);
+  --gold-line: rgba(138, 106, 47, 0.5);
+
+  /* Doubled, because a 10% warm wash is invisible on a near white page */
+  --glow-strong: rgba(168, 131, 58, 0.3);
+  --glow: rgba(168, 131, 58, 0.2);
+  --glow-soft: rgba(168, 131, 58, 0.12);
+
+  --danger: #b8392a;
+  --danger-soft: rgba(184, 57, 42, 0.09);
+  --danger-line: rgba(184, 57, 42, 0.32);
+  --success: #2e8b57;
+  --success-soft: rgba(46, 139, 87, 0.1);
+  --success-line: rgba(46, 139, 87, 0.32);
+
+  --header-scrim: rgba(251, 249, 245, 0.8);
+  --modal-scrim: rgba(244, 241, 234, 0.94);
+  --glass: rgba(255, 255, 255, 0.94);
+  --wash: rgba(18, 16, 12, 0.08);
+  --hairline-overlay: rgba(18, 16, 12, 0.055);
+  --focus-ring: #8a6a2f;
+  --scrollbar-thumb: #b7b0a0;
+  --cursor-ring: rgba(138, 106, 47, 0.85);
+  --cursor-ring-strong: rgba(138, 106, 47, 1);
+  --btn-light-hover: #000000;
+  --btn-dark-hover: #ffffff;
+
+  /* Lighter, because these scrims no longer have to blend into a black page */
+  --media-scrim: rgba(10, 10, 10, 0.3);
+  --card-shade-top: rgba(10, 10, 10, 0.3);
+  --card-shade-foot: rgba(10, 10, 10, 0.5);
+
+  --shadow-xl: 0 40px 80px -40px rgba(40, 33, 18, 0.2);
+  --shadow-sm: 0 18px 34px -20px rgba(40, 33, 18, 0.18);
+
+  --logo-invert: 1;
+  --grain-invert: 1;
+  --grain-opacity: 0.04;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --header-h: 64px;
+  }
+}
+
+/* Landscape phones have roughly 390px of height to spend, so the bar gives
+   some back. Declared here rather than on .header so the page heroes, the
+   menu overlay, the sticky About column and the route skeleton all follow. */
+@media (max-height: 520px) {
+  :root {
+    --header-h: 56px;
+  }
+}

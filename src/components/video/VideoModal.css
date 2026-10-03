@@ -1,0 +1,1052 @@
+/**
+ * The video overlay is split between two palettes.
+ *
+ * Anything that sits ON the picture keeps the dark palette in both themes: a
+ * letterbox, its control scrim and the overlays on top of them belong on
+ * black, and light chrome painted over a frame fights the picture. The rest of
+ * the overlay - the backdrop, the title row, the caption underneath and the
+ * settings sheet - is ordinary UI and follows the page theme, so opening a
+ * video on a light page does not drop a black sheet over it.
+ *
+ * The pinned rules below re-declare the dark tokens on the media surfaces.
+ * Every descendant of those then resolves dark with no further edits.
+ */
+.vm__spinner,
+.vm__error,
+.vm__unmute,
+.vm__big,
+.vm__controls {
+  color-scheme: dark;
+
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --text: #f5f3ee;
+  --text-2: #b8b4a9;
+  --text-3: #8a8578;
+  --line: #232323;
+  --line-2: #2f2f30;
+  --line-3: #3a3a3b;
+
+  /* Gold reads fine as ink on black, so the light theme's deeper tone is undone */
+  --gold-ink: var(--gold);
+  --focus-ring: var(--gold);
+  --btn-light-hover: #ffffff;
+}
+
+.vm {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--modal-scrim);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  animation: fade-in 0.35s ease both;
+  /* the picture must never sit under a notch or a home indicator */
+  padding: var(--sat) var(--sar) var(--sab) var(--sal);
+  overscroll-behavior: contain;
+  touch-action: manipulation;
+  color: var(--text);
+}
+
+/* Shown while the player code is still downloading */
+.vm-loading {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--modal-scrim);
+  animation: fade-in 0.3s ease both;
+}
+
+.vm-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  border-top-color: var(--gold);
+  animation: spin 0.9s linear infinite;
+}
+
+.vm__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 100%;
+  max-height: 100%;
+  /* Its own keyframe, ending on transform:none. The shared scale-in ends on
+     scale(1), and any transform other than none makes this the containing
+     block for the position:fixed settings sheet. */
+  animation: vm-stage-in 0.5s var(--ease) both;
+}
+
+@keyframes vm-stage-in {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Top row: close button on the left, title beside it */
+.vm__top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  margin-bottom: 12px;
+  padding-inline: 2px;
+  flex-shrink: 0;
+}
+
+.vm__close {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.4s var(--ease),
+    border-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .vm__close:hover {
+    background: var(--gold);
+    color: var(--text-on-gold);
+    border-color: var(--gold);
+    transform: rotate(90deg);
+  }
+}
+
+.vm__close:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.vm__head {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vm__cat {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vm__title {
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Player box: sized in JS to fit the viewport at the video's true aspect ratio */
+.vm__player {
+  position: relative;
+  background: #000;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  /* this one falls on the backdrop, which follows the theme, so a 90% black
+     blur would read as a smudge on a light page */
+  box-shadow: var(--shadow-xl);
+  align-self: center;
+  isolation: isolate;
+  flex-shrink: 0;
+}
+
+.vm__surface {
+  position: absolute;
+  inset: 0;
+}
+
+.vm__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
+/* Fullscreen targets the whole stage, so the close button and title survive */
+.vm__stage:fullscreen,
+.vm__stage:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: #000;
+  animation: none;
+}
+
+.vm__stage:fullscreen .vm__player,
+.vm__stage:-webkit-full-screen .vm__player {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 1 1 auto;
+}
+
+/* Loading spinner */
+.vm__spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  /* above the centre badge, which is a 55% black disc that used to hide it */
+  z-index: 4;
+}
+
+.vm__spinner span {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--gold);
+  animation: spin 0.9s linear infinite;
+}
+
+/* Error state sits above everything so Try again is always reachable */
+.vm__error {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(10, 10, 10, 0.92);
+  overflow: auto;
+}
+
+.vm__error i {
+  font-size: 2rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.vm__error p {
+  max-width: 320px;
+  color: var(--text-2);
+}
+
+.vm--short .vm__error {
+  gap: 10px;
+  padding: 12px;
+}
+
+.vm--short .vm__error i {
+  font-size: 1.4rem;
+}
+
+.vm--short .vm__error p {
+  font-size: 0.85rem;
+}
+
+/* Unmute hint */
+.vm__unmute {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--gold);
+  color: var(--text-on-gold);
+  font-weight: 600;
+  font-size: 0.85rem;
+  animation: fade-up 0.5s var(--ease) both;
+}
+
+/* Big center button */
+.vm__big {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s var(--ease),
+    background-color 0.3s ease,
+    color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vm__big .bi-play-fill {
+  margin-left: 5px;
+}
+
+.vm__big.is-hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.vm--touch.no-controls .vm__big {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* A short player has no room for a centre button on top of the control bar.
+   The bar always carries play and pause, so the badge simply goes away. */
+.vm--short .vm__big {
+  display: none;
+}
+
+@media (hover: hover) {
+  .vm__big:hover {
+    background: var(--gold);
+    color: var(--text-on-gold);
+    transform: scale(1.06);
+  }
+}
+
+/* Controls. The bar itself never takes clicks, only its widgets do, so the
+   transparent top of the gradient cannot swallow taps meant for the video. */
+.vm__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 36px 14px 12px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.78));
+  transition:
+    opacity 0.35s ease,
+    transform 0.4s var(--ease);
+  pointer-events: none;
+}
+
+.vm__progress,
+.vm__row {
+  pointer-events: auto;
+}
+
+.no-controls .vm__controls {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.no-controls .vm__progress,
+.no-controls .vm__row {
+  pointer-events: none;
+}
+
+/* base.css sets cursor:auto on every element while a modal is open, and the
+   pointer is really over .vm__surface, so the children have to be named too */
+.vm.no-controls.is-playing .vm__player,
+.vm.no-controls.is-playing .vm__player * {
+  cursor: none;
+}
+
+.vm__progress {
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* Inset by half the thumb so the gold fill lines up with the thumb centre */
+.vm__progress::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  height: 4px;
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, var(--gold) 0 var(--p, 0%), transparent var(--p, 0%)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.35) 0 var(--b, 0%), rgba(255, 255, 255, 0.16) var(--b, 0%));
+  transition: height 0.2s ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .vm__progress:hover::before {
+    height: 6px;
+  }
+}
+
+.vm__progress input[type='range'],
+.vm__volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.vm__progress input[type='range']::-webkit-slider-runnable-track,
+.vm__volume-slider::-webkit-slider-runnable-track {
+  height: 20px;
+  background: transparent;
+}
+
+.vm__progress input[type='range']::-moz-range-track,
+.vm__volume-slider::-moz-range-track {
+  height: 4px;
+  background: transparent;
+}
+
+.vm__progress input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--gold);
+  /* pinned: this ring is always on the black control scrim */
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transform: scale(0);
+  transition: transform 0.2s ease;
+}
+
+.vm__progress input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.vm__progress:hover input[type='range']::-webkit-slider-thumb,
+.vm__progress input[type='range']:focus-visible::-webkit-slider-thumb,
+.vm--touch .vm__progress input[type='range']::-webkit-slider-thumb {
+  transform: scale(1);
+}
+
+.vm__progress input[type='range']:focus-visible {
+  outline: none;
+}
+
+.vm__progress input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--gold-soft), 0 0 0 1px var(--gold);
+}
+
+.vm__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* last resort: wrap rather than let the two groups collide */
+  flex-wrap: wrap;
+  row-gap: 2px;
+  justify-content: space-between;
+}
+
+.vm__group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vm__btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  font-size: 1.25rem;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.3s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.vm__btn .bi-play-fill {
+  font-size: 1.5rem;
+}
+
+.vm__btn .bi-pause-fill {
+  font-size: 1.45rem;
+}
+
+@media (hover: hover) {
+  .vm__btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
+
+.vm__btn:active {
+  transform: scale(0.92);
+}
+
+.vm__btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.vm__btn.is-on {
+  color: var(--gold);
+  background: rgba(201, 167, 104, 0.18);
+}
+
+.vm__btn--skip span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -38%);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.vm__btn--skip i {
+  font-size: 1.35rem;
+}
+
+.vm__volume {
+  display: flex;
+  align-items: center;
+}
+
+.vm__volume-slider {
+  width: 0;
+  opacity: 0;
+  height: 20px;
+  transition:
+    width 0.3s var(--ease),
+    opacity 0.3s ease;
+  background: linear-gradient(90deg, var(--text) 0 var(--v, 100%), rgba(255, 255, 255, 0.25) var(--v, 100%));
+  background-size: 100% 3px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 3px;
+}
+
+.vm__volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.vm__volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 0;
+}
+
+/* Expanding adds 92px to a row that is allowed to wrap, so it is gated on a
+   player wide enough to absorb it. */
+@media (hover: hover) and (pointer: fine) {
+  .vm--lg .vm__volume:hover .vm__volume-slider,
+  .vm__volume:focus-within .vm__volume-slider {
+    width: 84px;
+    opacity: 1;
+    margin-right: 8px;
+  }
+}
+
+.vm--touch .vm__volume-slider,
+.vm--sm .vm__volume-slider,
+.vm--xs .vm__volume-slider {
+  display: none;
+}
+
+.vm__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.vm__time-sep {
+  color: var(--text-3);
+}
+
+.vm__speed-tag {
+  padding: 3px 8px;
+  margin-right: 4px;
+  border-radius: var(--radius);
+  background: var(--gold);
+  color: var(--text-on-gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------
+   Control bar density, keyed off the real player width rather than
+   the viewport. A portrait video on a phone gives a narrow player
+   inside a wide screen, so viewport media queries are the wrong tool.
+   --------------------------------------------------------------- */
+
+/* 340px to 403px: show the elapsed time only, and tighten the row so every
+   button still fits on one line. The buttons themselves stay at 44px, which is
+   the touch minimum, so the room comes out of the padding and the slider. */
+.vm--md .vm__time-sep,
+.vm--md .vm__time-total {
+  display: none;
+}
+
+.vm--md .vm__btn {
+  width: 44px;
+  height: 44px;
+}
+
+/* Skipping is still on the seek bar and on the arrow keys. Keeping the two
+   skip buttons here would push the row onto a second line. */
+.vm--md .vm__btn--skip {
+  display: none;
+}
+
+.vm--md .vm__volume-slider {
+  display: none;
+}
+
+.vm--md .vm__controls {
+  padding-inline: 6px;
+}
+
+.vm--md .vm__time {
+  padding-left: 4px;
+  font-size: 0.78rem;
+}
+
+/* under 340px: the skip buttons and the clock give way */
+.vm--sm .vm__btn--skip,
+.vm--xs .vm__btn--skip,
+.vm--sm .vm__time,
+.vm--xs .vm__time {
+  display: none;
+}
+
+/* .vm__row wraps as a last resort, and at these widths the two groups were
+   just wide enough to trigger it. Tighten the gaps rather than the buttons. */
+.vm--sm .vm__row,
+.vm--xs .vm__row {
+  gap: 2px;
+}
+
+.vm--sm .vm__btn,
+.vm--xs .vm__btn {
+  width: 44px;
+  height: 44px;
+}
+
+/* Under 260px there is room for three 44px buttons and nothing else, so the
+   bar keeps play, mute and the gear. Loop, full screen and screen size are all
+   reachable from the gear menu; skipping is on the seek bar and the arrow keys. */
+.vm--xs .vm__btn--loop,
+.vm--xs .vm__btn--fs {
+  display: none;
+}
+
+.vm--xs .vm__group {
+  gap: 0;
+}
+
+.vm--xs .vm__controls,
+.vm--sm .vm__controls {
+  padding-inline: 8px;
+}
+
+.vm--xs .vm__controls {
+  padding-inline: 4px;
+}
+
+/* Compact control bar, so the picture keeps most of a short player. A 16:9
+   video on a phone lands here, so the buttons and the seek strip stay at touch
+   size and the height comes out of the scrim padding instead. */
+.vm--short .vm__controls {
+  padding: 8px 8px 4px;
+}
+
+.vm--short .vm__progress {
+  height: 24px;
+  margin-bottom: 0;
+}
+
+.vm--short .vm__btn {
+  width: 44px;
+  height: 44px;
+  font-size: 1.05rem;
+}
+
+.vm--short .vm__btn .bi-play-fill {
+  font-size: 1.25rem;
+}
+
+.vm--short .vm__btn .bi-pause-fill {
+  font-size: 1.2rem;
+}
+
+.vm--short .vm__btn--skip i {
+  font-size: 1.15rem;
+}
+
+.vm--short .vm__time {
+  font-size: 0.72rem;
+}
+
+/* Settings popover.
+   A large player gets a popover above the gear button. Anything smaller gets
+   a sheet pinned to the bottom of the screen, so it is never squeezed into an
+   unusable sliver or laid over the seek bar. */
+.vm__menu {
+  position: absolute;
+  right: 12px;
+  bottom: 88px;
+  z-index: 10;
+  width: min(280px, calc(100% - 24px));
+  max-height: min(420px, calc(100% - 140px));
+  overflow-y: auto;
+  touch-action: pan-y;
+  padding: 8px;
+  border-radius: var(--radius-lg);
+  background: var(--glass);
+  border: 1px solid var(--line-2);
+  box-shadow: var(--shadow-xl);
+  animation: fade-up 0.3s var(--ease) both;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.vm--touch .vm__menu,
+.vm--sm .vm__menu,
+.vm--xs .vm__menu,
+.vm--short .vm__menu {
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - var(--sbw, 0px)));
+  max-height: min(70vh, 70svh);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding-bottom: calc(12px + var(--sab));
+  animation: sheet-up 0.32s var(--ease) both;
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 24px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.vm__menu-group + .vm__menu-group {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.vm__menu-label {
+  display: block;
+  padding: 8px 10px 6px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.vm__menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius);
+  color: var(--text);
+  text-align: left;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vm__menu-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vm__menu-item small {
+  font-size: 0.74rem;
+  color: var(--text-3);
+  font-weight: 400;
+}
+
+.vm__menu-item i {
+  color: var(--gold-ink);
+}
+
+.vm__menu-item.is-on {
+  color: var(--gold-ink);
+}
+
+@media (hover: hover) {
+  .vm__menu-item:hover {
+    background: var(--wash);
+  }
+}
+
+.vm__speeds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 2px 6px 6px;
+}
+
+.vm__speed {
+  padding: 12px 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.vm__speed.is-on {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--text-on-gold);
+}
+
+@media (hover: hover) {
+  .vm__speed:not(.is-on):hover {
+    border-color: var(--line-3);
+    color: var(--text);
+  }
+}
+
+/* Meta below the player */
+.vm__meta {
+  margin-top: 14px;
+  padding-inline: 2px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.vm__meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.vm__meta-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--line-3);
+}
+
+/* Theater and fullscreen: player fills the screen, chrome floats over it.
+   The safe-area padding moves off the backdrop and onto the chrome instead. */
+.vm--theater,
+.vm.is-fullscreen {
+  padding: 0;
+}
+
+.vm--theater .vm__close,
+.is-fullscreen .vm__close {
+  background: rgba(20, 20, 20, 0.9);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--on-media);
+}
+
+.vm--theater .vm__cat,
+.is-fullscreen .vm__cat {
+  color: var(--gold);
+}
+
+.vm--theater .vm__stage,
+.is-fullscreen .vm__stage {
+  width: 100%;
+  height: 100%;
+}
+
+.vm--theater .vm__player {
+  border-radius: 0;
+  box-shadow: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+}
+
+.vm--theater .vm__top,
+.is-fullscreen .vm__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  margin: 0;
+  padding: calc(14px + var(--sat)) calc(14px + var(--sar)) 40px calc(14px + var(--sal));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent);
+  /* back on the picture, so the ink is pinned light again */
+  color: var(--on-media);
+  transition: opacity 0.35s ease, transform 0.4s var(--ease);
+  /* the transparent lower half must not block the unmute pill underneath */
+  pointer-events: none;
+}
+
+.vm--theater .vm__close,
+.is-fullscreen .vm__close,
+.vm--theater .vm__head,
+.is-fullscreen .vm__head {
+  pointer-events: auto;
+}
+
+.vm--theater.no-controls .vm__top,
+.is-fullscreen.no-controls .vm__top {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.vm--theater .vm__meta,
+.is-fullscreen .vm__meta {
+  display: none;
+}
+
+.vm--theater .vm__controls,
+.is-fullscreen .vm__controls {
+  padding-bottom: calc(12px + var(--sab));
+  padding-left: calc(14px + var(--sal));
+  padding-right: calc(14px + var(--sar));
+}
+
+.vm--theater .vm__unmute,
+.is-fullscreen .vm__unmute {
+  top: auto;
+  bottom: calc(104px + var(--sab));
+  right: calc(16px + var(--sar));
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .vm__top {
+    margin-bottom: 10px;
+  }
+
+  .vm__title {
+    font-size: 1rem;
+  }
+
+  .vm__controls {
+    padding: 28px 8px 8px;
+  }
+
+  .vm__time {
+    font-size: 0.76rem;
+    padding-left: 4px;
+  }
+
+  .vm__meta {
+    margin-top: 10px;
+  }
+}
+
+/* Very short landscape phones: drop the caption, keep the player */
+@media (max-height: 520px) {
+  .vm__meta {
+    display: none;
+  }
+
+  .vm__top {
+    min-height: 40px;
+    margin-bottom: 6px;
+  }
+
+  .vm__title {
+    font-size: 0.95rem;
+  }
+}

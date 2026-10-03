@@ -1,0 +1,489 @@
+.contact-hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 760px;
+  max-height: 760px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow), transparent 70%);
+  pointer-events: none;
+}
+
+.contact-hero .container {
+  position: relative;
+}
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+.contact__channels {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Channel cards */
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  background: var(--bg-2);
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    transform 0.5s var(--ease);
+}
+
+.channel--primary {
+  border-color: var(--gold-line);
+  background: linear-gradient(135deg, var(--gold-soft), transparent);
+}
+
+.channel--static {
+  cursor: default;
+}
+
+@media (hover: hover) {
+  a.channel:hover {
+    border-color: var(--gold);
+    transform: translateY(-3px);
+  }
+
+  a.channel:hover .channel__arrow {
+    transform: translate(3px, -3px);
+    color: var(--gold-ink);
+  }
+
+  a.channel:hover .channel__icon {
+    background: var(--gold);
+    color: var(--text-on-gold);
+    border-color: var(--gold);
+  }
+}
+
+.channel__icon {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  color: var(--gold-ink);
+  font-size: 1.35rem;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.channel__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.channel__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.channel__value {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.channel__hint {
+  font-size: 0.86rem;
+  color: var(--text-2);
+}
+
+.channel__arrow {
+  margin-left: auto;
+  color: var(--text-3);
+  transition: transform 0.4s var(--ease), color 0.3s ease;
+}
+
+/* Socials */
+.socials {
+  margin-top: 10px;
+}
+
+.socials__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+
+/* auto-fit rather than a fixed three, because only two socials render and the
+   150px floor is what "@vimetofficial" needs to stay on one line */
+.socials__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.socials__list a {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.socials__list i {
+  font-size: 1.3rem;
+  color: var(--gold-ink);
+}
+
+.socials__name {
+  font-weight: 600;
+}
+
+.socials__handle {
+  font-size: 0.8rem;
+  color: var(--text-3);
+  overflow-wrap: anywhere;
+}
+
+@media (hover: hover) {
+  .socials__list a:hover {
+    border-color: var(--gold);
+    background: var(--surface);
+  }
+}
+
+/* Form */
+.contact__form-wrap {
+  min-width: 0;
+}
+
+.form {
+  padding: clamp(22px, 3vw, 40px);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  background: var(--bg-2);
+}
+
+.form__head {
+  margin-bottom: 28px;
+}
+
+.form__title {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  margin-bottom: 10px;
+}
+
+.form__lead {
+  color: var(--text-2);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.form__row {
+  display: grid;
+  /* 240px is the narrowest a field can be before the longest option label
+     would run under the chevron */
+  /* min() keeps the track from exceeding the row on a 320px screen */
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  column-gap: 18px;
+  row-gap: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  min-width: 0;
+}
+
+/* The native date control.
+   iOS lays the value out with its own metrics and ignores the inherited
+   line height, which pushes the text out of the padded box and makes it
+   collide with the label above. Pinning the height and styling the value
+   pseudo element keeps it inside its own field on every phone. */
+.field input[type='date'] {
+  min-width: 0;
+  width: 100%;
+  height: 52px;
+  line-height: normal;
+  text-align: left;
+  display: block;
+}
+
+.field input[type='date']::-webkit-datetime-edit,
+.field input[type='date']::-webkit-date-and-time-value {
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  line-height: 22px;
+}
+
+.field input[type='date']::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+/* the same guard for the select, which iOS also centres with its own metrics */
+.select select {
+  line-height: normal;
+  height: 52px;
+}
+
+.field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.field__optional {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--text-3);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.4;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--text-3);
+  opacity: 0.8;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+  outline: none;
+}
+
+.field input[type='date'] {
+  color-scheme: var(--scheme);
+}
+
+.field input[type='date']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.select {
+  position: relative;
+}
+
+.select select {
+  padding-right: 44px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.select i {
+  position: absolute;
+  z-index: 2;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  line-height: 1;
+  pointer-events: none;
+  color: var(--text-3);
+}
+
+/* A select clips its overflow at the padding box, not the content box, so a
+   long option can render straight across the chevron before it is cut. This
+   fades the last 42px into the field colour, which works in every browser and
+   leaves the border intact (clipping the element would eat it). */
+.select::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 42px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: linear-gradient(90deg, transparent, var(--bg) 45%);
+  pointer-events: none;
+}
+
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea {
+  border-color: var(--danger);
+}
+
+.field__error {
+  font-size: 0.82rem;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field__count {
+  font-size: 0.76rem;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--success-soft);
+  border: 1px solid var(--success-line);
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  animation: fade-up 0.4s var(--ease) both;
+}
+
+.form__note i {
+  color: var(--success);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.form__note.is-warning {
+  background: var(--danger-soft);
+  border-color: var(--danger-line);
+}
+
+.form__note.is-warning i {
+  color: var(--danger);
+}
+
+.form__note a {
+  color: var(--gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 960px) {
+  .contact__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact__form-wrap {
+    order: -1;
+  }
+}
+
+@media (max-width: 400px) {
+  /* At 320px the icon, gaps and arrow left only 130px for the address, which
+     broke it across three lines mid-word. */
+  .channel {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .channel__icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.15rem;
+  }
+
+  .channel__value {
+    font-size: 1.05rem;
+  }
+
+  .form {
+    padding: 18px;
+  }
+
+  .select select {
+    padding-right: 38px;
+  }
+
+  .select i {
+    right: 12px;
+  }
+
+  .select::after {
+    width: 36px;
+  }
+}
+
+@media (max-width: 639px) {
+  .form__row {
+    grid-template-columns: 1fr;
+  }
+
+  /* a little more air between stacked fields on a phone */
+  .field {
+    margin-bottom: 22px;
+  }
+
+  .form__actions .btn {
+    width: 100%;
+  }
+}

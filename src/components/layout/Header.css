@@ -1,0 +1,399 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  height: calc(var(--header-h) + var(--sat));
+  padding-top: var(--sat);
+  padding-right: var(--sbw, 0px);
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.5s var(--ease);
+  border-bottom: 1px solid transparent;
+}
+
+.header.is-scrolled {
+  background: var(--header-scrim);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom-color: var(--line);
+}
+
+.header.is-menu-open {
+  z-index: calc(var(--z-menu) + 1);
+  /* opaque, not transparent: the panel scrolls when it overflows, and the
+     links would otherwise slide up through the wordmark and the burger */
+  background: var(--bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom-color: transparent;
+}
+
+.header__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.header__logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  /* the wordmark itself is only ~30px tall, so pad the link to a 44px target */
+  min-height: 44px;
+  padding-inline: 4px;
+  margin-inline: -4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header__logo img {
+  height: 30px;
+  width: auto;
+  /* The wordmark is white on transparent, so the light theme inverts it */
+  filter: invert(var(--logo-invert));
+  transition: transform 0.4s var(--ease), opacity 0.3s ease;
+}
+
+@media (hover: hover) {
+  .header__logo:hover img {
+    transform: scale(1.04);
+  }
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 11px 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  transition: color 0.3s ease;
+}
+
+.header__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 1px;
+  background: var(--gold-ink);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease);
+}
+
+.header__link.is-active {
+  color: var(--text);
+}
+
+.header__link.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (hover: hover) {
+  .header__link:hover {
+    color: var(--text);
+  }
+
+  .header__link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header__burger {
+  display: none;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header__burger span {
+  position: absolute;
+  left: 13px;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition:
+    transform 0.45s var(--ease),
+    top 0.45s var(--ease),
+    width 0.3s ease;
+}
+
+.header__burger span:first-child {
+  top: 19px;
+}
+
+.header__burger span:last-child {
+  top: 27px;
+  width: 16px;
+}
+
+.header__burger[aria-expanded='true'] span:first-child {
+  top: 23px;
+  transform: rotate(45deg);
+}
+
+.header__burger[aria-expanded='true'] span:last-child {
+  top: 23px;
+  width: 22px;
+  transform: rotate(-45deg);
+}
+
+/* 900px, not 860px: .header__nav is absolutely centred on the viewport while
+   the actions are right aligned, and the theme toggle takes 56px out of the
+   gap between them. Below this the burger carries the same links. */
+@media (max-width: 900px) {
+  .header__nav {
+    display: none;
+  }
+
+  .header__burger {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .header__cta {
+    display: none;
+  }
+
+  .header__logo img {
+    height: 26px;
+  }
+}
+
+/* Mobile menu overlay */
+.menu {
+  position: fixed;
+  inset: 0;
+  padding-right: var(--sbw, 0px);
+  z-index: var(--z-menu);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(var(--header-h) + var(--sat));
+  padding-bottom: calc(24px + var(--sab));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  animation: menu-in 0.55s var(--ease) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 90% 10%, var(--gold-soft), transparent 70%),
+    radial-gradient(40% 40% at 10% 90%, var(--glow-soft), transparent 70%);
+  pointer-events: none;
+}
+
+.menu__inner {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.menu__nav {
+  display: flex;
+  flex-direction: column;
+  padding-top: 24px;
+}
+
+.menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 10vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--text);
+  transition: color 0.3s ease;
+  animation: fade-up 0.6s var(--ease) both;
+  animation-delay: calc(0.1s + var(--i, 0) * 0.07s);
+}
+
+.menu__link.is-active,
+.menu__link:active {
+  color: var(--gold-ink);
+}
+
+.menu__index {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--gold-ink);
+}
+
+.menu__label {
+  min-width: 0;
+}
+
+.menu__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding-top: 8px;
+  font-size: 0.95rem;
+  color: var(--text-2);
+  animation: fade-up 0.6s var(--ease) 0.4s both;
+}
+
+.menu__meta a {
+  overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 10px;
+}
+
+.menu__meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu__meta-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.menu__socials {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+}
+
+.menu__socials a {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  color: var(--text);
+  font-size: 1.1rem;
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.menu__socials a:active {
+  background: var(--gold);
+  color: var(--text-on-gold);
+  border-color: var(--gold);
+}
+
+@media (max-width: 400px) {
+  .menu__meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Landscape phones: the panel has to fit in about 270px of height once the
+   shorter bar and the safe areas are taken out. --header-h drops to 56px at
+   this height (tokens.css), which the padding-top below inherits. */
+@media (max-height: 520px) {
+  .menu {
+    padding-bottom: calc(12px + var(--sab));
+  }
+
+  .menu__link {
+    font-size: clamp(1.4rem, 6.5vh, 2.2rem);
+    min-height: 44px;
+    padding: 11px 0;
+  }
+
+  .menu__nav {
+    padding-top: 4px;
+  }
+
+  .menu__inner {
+    gap: 14px;
+  }
+
+  .menu__meta {
+    gap: 10px 24px;
+    padding-top: 0;
+    font-size: 0.85rem;
+  }
+
+  .menu__meta a {
+    min-height: 40px;
+    padding-block: 6px;
+  }
+
+  .menu__socials a {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Scroll progress line */
+.scroll-progress {
+  position: fixed;
+  top: var(--sat);
+  left: 0;
+  /* the element is pure background, so padding would still paint over the
+     reserved scrollbar gutter. The inset has to come off the edge. */
+  right: var(--sbw, 0px);
+  height: 2px;
+  z-index: var(--z-progress);
+  pointer-events: none;
+  background: var(--gold-ink);
+  transform-origin: left;
+  transform: scaleX(0);
+}

@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# Raw client media stays out of git. The web copies live in public/media.
+/videos
+/images
+
+# Local handoff guides, kept off GitHub.
+/DEPLOY.md
+/CONTACT-FORM-KEY.md

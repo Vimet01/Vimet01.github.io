@@ -1,0 +1,43 @@
+.work-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.work-filters__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--wash);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip.is-active .work-filters__count {
+  background: rgba(0, 0, 0, 0.16);
+}
+
+@media (max-width: 600px) {
+  .work-filters {
+    gap: 8px;
+  }
+
+  /* stays at 44px: anything less is under the comfortable touch minimum */
+  .chip {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .chip {
+    padding: 0 12px;
+    font-size: 0.78rem;
+  }
+}

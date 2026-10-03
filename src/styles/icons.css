@@ -1,0 +1,61 @@
+/*!
+ * Bootstrap Icons (MIT), subset to the 33 icons this site uses.
+ * Source: https://github.com/twbs/icons
+ * Generated file. Run "npm run icons" to rebuild it.
+ */
+@font-face {
+  font-family: 'vimet-icons';
+  font-display: swap;
+  src: url('../assets/vimet-icons.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.bi::before,
+[class^='bi-']::before,
+[class*=' bi-']::before {
+  display: inline-block;
+  font-family: 'vimet-icons' !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -0.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi-airplane-engines::before { content: "\f7cb"; }
+.bi-arrow-clockwise::before { content: "\f116"; }
+.bi-arrow-counterclockwise::before { content: "\f117"; }
+.bi-arrow-right::before { content: "\f138"; }
+.bi-arrow-up::before { content: "\f148"; }
+.bi-arrow-up-right::before { content: "\f144"; }
+.bi-brightness-high-fill::before { content: "\f1d1"; }
+.bi-building::before { content: "\f1dd"; }
+.bi-camera-reels::before { content: "\f21b"; }
+.bi-check2::before { content: "\f272"; }
+.bi-check2-circle::before { content: "\f270"; }
+.bi-chevron-down::before { content: "\f282"; }
+.bi-compass::before { content: "\f2d1"; }
+.bi-envelope::before { content: "\f32f"; }
+.bi-exclamation-triangle::before { content: "\f33b"; }
+.bi-fullscreen::before { content: "\f3df"; }
+.bi-fullscreen-exit::before { content: "\f3de"; }
+.bi-gear::before { content: "\f3e5"; }
+.bi-geo-alt::before { content: "\f3e8"; }
+.bi-heart::before { content: "\f417"; }
+.bi-instagram::before { content: "\f437"; }
+.bi-mic::before { content: "\f490"; }
+.bi-moon-stars-fill::before { content: "\f495"; }
+.bi-pause-fill::before { content: "\f4c3"; }
+.bi-phone::before { content: "\f4e7"; }
+.bi-play-fill::before { content: "\f4f4"; }
+.bi-repeat::before { content: "\f813"; }
+.bi-twitter-x::before { content: "\f8db"; }
+.bi-volume-down-fill::before { content: "\f60a"; }
+.bi-volume-mute-fill::before { content: "\f60c"; }
+.bi-volume-up-fill::before { content: "\f610"; }
+.bi-whatsapp::before { content: "\f618"; }
+.bi-x-lg::before { content: "\f659"; }
